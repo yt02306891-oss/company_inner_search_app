@@ -28,11 +28,27 @@ def display_select_mode():
     # 回答モードを選択する用のラジオボタンを表示
     col1, col2 = st.sidebar.columns([100, 1])
     with col1:
+        st.markdown(
+        """
+        <p style="
+            font-size:22px;
+            font-weight:700;
+            color:#000000;
+            margin-top:0px;
+            margin-bottom:8px;
+        ">
+            利用目的
+        </p>
+        """,
+        unsafe_allow_html=True
+        )
+        
         # 「label_visibility="collapsed"」とすることで、ラジオボタンを非表示にする
-        st.sidebar.session_state.mode = st.sidebar.radio(
-            label="利用目的",
-            options=[ct.ANSWER_MODE_1, ct.ANSWER_MODE_2],
-            label_visibility="visible"
+        st.session_state.mode = st.radio(
+        label="",
+        options=[ct.ANSWER_MODE_1, ct.ANSWER_MODE_2],
+        label_visibility="collapsed",
+        key="mode"
         )
 
 
