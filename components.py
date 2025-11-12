@@ -41,7 +41,7 @@ def display_select_mode():
         key="mode",
         index=0
         )
-    st.divider()    
+        st.divider()
 
 
 def display_initial_ai_message():
