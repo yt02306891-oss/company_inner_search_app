@@ -29,26 +29,17 @@ def display_select_mode():
     col1, col2 = st.sidebar.columns([100, 1])
     with col1:
         st.markdown(
-        """
-        <p style="
-            font-size:22px;
-            font-weight:700;
-            color:#000000;
-            margin-top:0px;
-            margin-bottom:8px;
-        ">
-            利用目的
-        </p>
-        """,
+        "<p style='font-size:20px; font-weight:700; margin:0 0 8px 0;'>利用目的</p>",
         unsafe_allow_html=True
         )
         
         # 「label_visibility="collapsed"」とすることで、ラジオボタンを非表示にする
-        st.session_state.mode = st.radio(
+        mode = st.radio(
         label="",
         options=[ct.ANSWER_MODE_1, ct.ANSWER_MODE_2],
         label_visibility="collapsed",
-        key="mode"
+        key="mode",
+        index=0
         )
 
 
