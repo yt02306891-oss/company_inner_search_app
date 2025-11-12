@@ -26,7 +26,7 @@ def display_select_mode():
     回答モードのラジオボタンを表示
     """
     # 回答モードを選択する用のラジオボタンを表示
-    col1, col2 = st.sidebarcolumns([100, 1])
+    col1, col2 = st.sidebar.columns([100, 1])
     with col1:
         # 「label_visibility="collapsed"」とすることで、ラジオボタンを非表示にする
         st.sidebar.session_state.mode = st.sidebar.radio(
