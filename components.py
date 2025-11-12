@@ -32,7 +32,7 @@ def display_select_mode():
         st.sidebar.session_state.mode = st.sidebar.radio(
             label="利用目的",
             options=[ct.ANSWER_MODE_1, ct.ANSWER_MODE_2],
-            label_visibility="collapsed"
+            label_visibility="visible"
         )
 
 
