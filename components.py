@@ -41,6 +41,7 @@ def display_select_mode():
         key="mode",
         index=0
         )
+    st.divider()    
 
 
 def display_initial_ai_message():
@@ -49,7 +50,7 @@ def display_initial_ai_message():
     """
     with st.sidebar.chat_message("assistant"):
         # 「st.success()」とすると緑枠で表示される
-        st.sidebar.markdown("こんにちは。私は社内文書の情報をもとに回答する生成AIチャットボットです。上記で利用目的を選択し、画面下部のチャット欄からメッセージを送信してください。")
+        st.markdown("こんにちは。私は社内文書の情報をもとに回答する生成AIチャットボットです。上記で利用目的を選択し、画面下部のチャット欄からメッセージを送信してください。")
 
         # 「社内文書検索」の機能説明
         st.sidebar.markdown("**【「社内文書検索」を選択した場合】**")
