@@ -19,6 +19,8 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 import constants as ct
+from langchain.document_loaders import WebBaseLoader
+from langchain_community.document_loaders import PyPDFLoader, UnstructuredWordDocumentLoader
 
 
 ############################################################
@@ -123,8 +125,8 @@ def initialize_retriever():
     
     # チャンク分割用のオブジェクトを作成
     text_splitter = CharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
+        chunk_size=ct.CHUNK_SIZE,
+        chunk_overlap=ct.CHUNK_OVERLAP,
         separator="\n"
     )
 
@@ -135,7 +137,7 @@ def initialize_retriever():
     db = Chroma.from_documents(splitted_docs, embedding=embeddings)
 
     # ベクターストアを検索するRetrieverの作成
-    st.session_state.retriever = db.as_retriever(search_kwargs={"k": 3})
+    st.session_state.retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K_RETRIEVED_DOCS})
 
 
 def initialize_session_state():
@@ -168,10 +170,35 @@ def load_data_sources():
         # 指定のWebページを読み込み
         loader = WebBaseLoader(web_url)
         web_docs = loader.load()
+
+        # ============================================
+        # 修正箇所①: ページ番号を1始まりに補正
+        # ============================================
+        for d in web_docs:
+            meta = getattr(d, "metadata", {})
+            if "page" in meta:
+                try:
+                    meta["page"] = int(meta["page"]) + 1
+                except Exception:
+                    # 型変換できない場合はスキップ
+                    pass
+
         # for文の外のリストに読み込んだデータソースを追加
         web_docs_all.extend(web_docs)
+
     # 通常読み込みのデータソースにWebページのデータを追加
     docs_all.extend(web_docs_all)
+
+    # ============================================
+    # 修正箇所②: ファイル読み込み側のページ番号補正
+    # ============================================
+    for d in docs_all:
+        meta = getattr(d, "metadata", {})
+        if "page" in meta:
+            try:
+                meta["page"] = int(meta["page"]) + 1
+            except Exception:
+                pass
 
     return docs_all
 
@@ -242,3 +269,15 @@ def adjust_string(s):
     
     # OSがWindows以外の場合はそのまま返す
     return s
+
+def _normalize_page_number(docs):
+    """metadata['page'] が 0 始まりの場合に +1 補正"""
+    for d in docs:
+        meta = getattr(d, "metadata", {})
+        if "page" in meta:
+            try:
+                meta["page"] = int(meta["page"]) + 1
+            except Exception:
+                pass
+    return docs
+
