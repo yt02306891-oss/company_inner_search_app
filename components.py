@@ -171,6 +171,7 @@ def display_search_llm_response(llm_response):
             # ページ番号を取得
             main_page_number = llm_response["context"][0].metadata["page"]
             # 「メインドキュメントのファイルパス」と「ページ番号」を表示
+            main_page_number = int(raw) + 1
             st.success(f"{main_file_path}（ページNo.{main_page_number}）", icon=icon)
         else:
             # 「メインドキュメントのファイルパス」を表示
@@ -206,6 +207,7 @@ def display_search_llm_response(llm_response):
                 # ページ番号を取得
                 sub_page_number = document.metadata["page"]
                 # 「サブドキュメントのファイルパス」と「ページ番号」の辞書を作成
+                sub_page_number = int(raw) + 1
                 sub_choice = {"source": sub_file_path, "page_number": sub_page_number}
             else:
                 # 「サブドキュメントのファイルパス」の辞書を作成
@@ -307,6 +309,7 @@ def display_contact_llm_response(llm_response):
             if "page" in document.metadata:
                 # ページ番号を取得
                 page_no = document.metadata["page"]
+                page_no = int(raw) + 1
                 st.info(f"{file_path}（ページNo.{page_no}）", icon=icon)
                 # 「ファイルパス」と「ページ番号」
                 file_info = f"{file_path}（ページNo.{page_no}）"
@@ -338,3 +341,9 @@ def display_contact_llm_response(llm_response):
         content["file_info_list"] = file_info_list
 
     return content
+
+def to_page1(value):
+    try:
+        return int(value) + 1
+    except Exception:
+        return None
