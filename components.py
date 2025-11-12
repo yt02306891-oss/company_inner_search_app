@@ -49,29 +49,13 @@ def display_initial_ai_message():
     AIメッセージの初期表示
     """
 
-    # メインエリア（色付きの案内を出したいなら）
-    icon_col, body_col = st.columns([1, 20])
-
-    with icon_col:
-        # オレンジのアイコン（小さな角丸四角の中に絵文字）
-        st.markdown(
-            """
-            <div style="
-                width:40px;height:40px;border-radius:10px;
-                background:#F59E0B; display:flex; align-items:center; justify-content:center;
-                margin-top:6px;           /* ← 1つ目のボックスと縦位置を合わせる微調整 */
-            ">
-                <span style="font-size:20px; color:white;">💬</span>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    with body_col:
+    with st.chat_message("assistant"):
+        # 緑色ボックス
         st.success(
             "こんにちは。私は社内文書の情報をもとに回答する生成AIチャットボットです。"
             "サイドバーで利用目的を選択し、画面下部のチャット欄からメッセージを送信してください。"
         )
+        # 黄色ボックス
         st.warning("具体的に入力したほうが期待通りの回答を得やすいです。")
 
     # サイドバー
