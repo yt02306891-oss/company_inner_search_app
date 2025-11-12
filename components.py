@@ -55,11 +55,11 @@ def display_initial_ai_message():
 
     # サイドバー
     with st.sidebar:
-        st.markdown("#### 💼 「社内文書検索」を選択した場合")
-        st.info("入力内容と関連性が高い社内文書のありかを検索できます。")
+        st.markdown("**【「社内文書検索」を選択した場合】**")
         st.code("【入力例】\n社員の育成方針に関するMTGの議事録", wrap_lines=True, language=None)
+        st.info("入力内容と関連性が高い社内文書のありかを検索できます。")
 
-        st.markdown("#### 📨 「社内問い合わせ」を選択した場合")
+        st.markdown("**【「社内問い合わせ」を選択した場合】**")
         st.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
         st.code("【入力例】\n人事部に所属している従業員情報を一覧化して", wrap_lines=True, language=None)
 
