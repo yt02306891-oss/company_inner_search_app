@@ -19,8 +19,6 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 import constants as ct
-from langchain.document_loaders import WebBaseLoader
-from langchain_community.document_loaders import PyPDFLoader, UnstructuredWordDocumentLoader
 
 
 ############################################################
@@ -170,35 +168,10 @@ def load_data_sources():
         # 指定のWebページを読み込み
         loader = WebBaseLoader(web_url)
         web_docs = loader.load()
-
-        # ============================================
-        # 修正箇所①: ページ番号を1始まりに補正
-        # ============================================
-        for d in web_docs:
-            meta = getattr(d, "metadata", {})
-            if "page" in meta:
-                try:
-                    meta["page"] = int(meta["page"]) + 1
-                except Exception:
-                    # 型変換できない場合はスキップ
-                    pass
-
         # for文の外のリストに読み込んだデータソースを追加
         web_docs_all.extend(web_docs)
-
     # 通常読み込みのデータソースにWebページのデータを追加
     docs_all.extend(web_docs_all)
-
-    # ============================================
-    # 修正箇所②: ファイル読み込み側のページ番号補正
-    # ============================================
-    for d in docs_all:
-        meta = getattr(d, "metadata", {})
-        if "page" in meta:
-            try:
-                meta["page"] = int(meta["page"]) + 1
-            except Exception:
-                pass
 
     return docs_all
 
@@ -269,15 +242,4 @@ def adjust_string(s):
     
     # OSがWindows以外の場合はそのまま返す
     return s
-
-def _normalize_page_number(docs):
-    """metadata['page'] が 0 始まりの場合に +1 補正"""
-    for d in docs:
-        meta = getattr(d, "metadata", {})
-        if "page" in meta:
-            try:
-                meta["page"] = int(meta["page"]) + 1
-            except Exception:
-                pass
-    return docs
 
