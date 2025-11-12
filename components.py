@@ -162,12 +162,12 @@ def display_search_llm_response(llm_response):
         
         # 参照元のありかに応じて、適したアイコンを取得
         icon = utils.get_source_icon(main_file_path)
-        # ページ番号出力を一時停止（ファイルパスのみ表示）
-        # if "page" in llm_response["context"][0].metadata:
-        #     main_page_number = llm_response["context"][0].metadata["page"]
-        #     st.success(f"{main_file_path}（ページNo.{main_page_number}）", icon=icon)
-        # else:
-        st.success(f"{main_file_path}", icon=icon)
+        # ページ番号出力
+        if "page" in llm_response["context"][0].metadata:
+            main_page_number = llm_response["context"][0].metadata["page"]
+            st.success(f"{main_file_path}（ページNo.{main_page_number}）", icon=icon)
+        else:
+            st.success(f"{main_file_path}", icon=icon)
 
         # ==========================================
         # ユーザー入力値と関連性が高いサブドキュメントのありかを表示
@@ -186,12 +186,12 @@ def display_search_llm_response(llm_response):
 
             duplicate_check_list.append(sub_file_path)
             
-            # ページ番号関連を一時停止
-            # if "page" in document.metadata:
-            #     sub_page_number = document.metadata["page"]
-            #     sub_choice = {"source": sub_file_path, "page_number": sub_page_number}
-            # else:
-            sub_choice = {"source": sub_file_path}
+            # ページ番号
+            if "page" in document.metadata:
+                sub_page_number = document.metadata["page"]
+                sub_choice = {"source": sub_file_path, "page_number": sub_page_number}
+            else:
+                sub_choice = {"source": sub_file_path}
             
             sub_choices.append(sub_choice)
         
@@ -201,12 +201,12 @@ def display_search_llm_response(llm_response):
 
             for sub_choice in sub_choices:
                 icon = utils.get_source_icon(sub_choice['source'])
-                # ページ番号出力を一時停止
-                # if "page_number" in sub_choice:
-                #     page_no = sub_choice["page_number"]
-                #     st.info(f"{sub_choice['source']}（ページNo.{page_no}）", icon=icon)
-                # else:
-                st.info(f"{sub_choice['source']}", icon=icon)
+                # ページ番号出力
+                if "page_number" in sub_choice:
+                    page_no = sub_choice["page_number"]
+                    st.info(f"{sub_choice['source']}（ページNo.{page_no}）", icon=icon)
+                else:
+                    st.info(f"{sub_choice['source']}", icon=icon)
         
         # 表示用の会話ログに格納するためのデータを用意
         content = {}
@@ -214,8 +214,8 @@ def display_search_llm_response(llm_response):
         content["main_message"] = main_message
         content["main_file_path"] = main_file_path
         # ページ番号格納を停止
-        # if "page" in llm_response["context"][0].metadata:
-        #     content["main_page_number"] = main_page_number
+        if "page" in llm_response["context"][0].metadata:
+            content["main_page_number"] = main_page_number
         if sub_choices:
             content["sub_message"] = sub_message
             content["sub_choices"] = sub_choices
@@ -261,13 +261,13 @@ def display_contact_llm_response(llm_response):
             if file_path in file_path_list:
                 continue
 
-            # ページ番号出力を停止（ファイルパスのみ）
-            # if "page" in document.metadata:
-            #     page_no = document.metadata["page"]
-            #     st.info(f"{file_path}（ページNo.{page_no}）", icon=icon)
-            #     file_info = f"{file_path}（ページNo.{page_no}）"
-            # else:
-            file_info = f"{file_path}"
+            # ページ番号出力
+            if "page" in document.metadata:
+                page_no = document.metadata["page"]
+                st.info(f"{file_path}（ページNo.{page_no}）", icon=icon)
+                file_info = f"{file_path}（ページNo.{page_no}）"
+            else:
+                file_info = f"{file_path}"
 
             icon = utils.get_source_icon(file_path)
             st.info(file_info, icon=icon)
