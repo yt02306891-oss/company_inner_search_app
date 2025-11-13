@@ -99,44 +99,44 @@ def initialize_session_id():
 
 
 def initialize_retriever():
-    """
-    画面読み込み時にRAGのRetriever（ベクターストアから検索するオブジェクト）を作成
-    """
-    # ロガーを読み込むことで、後続の処理中に発生したエラーなどがログファイルに記録される
     logger = logging.getLogger(ct.LOGGER_NAME)
 
-    # すでにRetrieverが作成済みの場合、後続の処理を中断
     if "retriever" in st.session_state:
         return
-    
-    # RAGの参照先となるデータソースの読み込み
-    docs_all = load_data_sources()
 
-    # OSがWindowsの場合、Unicode正規化と、cp932（Windows用の文字コード）で表現できない文字を除去
-    for doc in docs_all:
-        doc.page_content = adjust_string(doc.page_content)
-        for key in doc.metadata:
-            doc.metadata[key] = adjust_string(doc.metadata[key])
-    
-    # 埋め込みモデルの用意
-    embeddings = OpenAIEmbeddings()
-    
-    # チャンク分割用のオブジェクトを作成
-    text_splitter = CharacterTextSplitter(
-        chunk_size=ct.CHUNK_SIZE,
-        chunk_overlap=ct.CHUNK_OVERLAP,
-        separator="\n"
-    )
+    try:
+        logger.info("initialize_retriever: start load_data_sources")
+        docs_all = load_data_sources()
+        logger.info(f"initialize_retriever: load_data_sources done. docs_all={len(docs_all)}")
+    except Exception as e:
+        logger.error(f"initialize_retriever: load_data_sources error: {e}")
+        raise
 
-    # チャンク分割を実施
-    splitted_docs = text_splitter.split_documents(docs_all)
+    try:
+        logger.info("initialize_retriever: start adjust_string")
+        for doc in docs_all:
+            doc.page_content = adjust_string(doc.page_content)
+            for key in doc.metadata:
+                doc.metadata[key] = adjust_string(doc.metadata[key])
+        logger.info("initialize_retriever: adjust_string done")
+    except Exception as e:
+        logger.error(f"initialize_retriever: adjust_string error: {e}")
+        raise
 
-    # ベクターストアの作成
-    db = Chroma.from_documents(splitted_docs, embedding=embeddings)
-
-    # ベクターストアを検索するRetrieverの作成
-    st.session_state.retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K_RETRIEVED_DOCS})
-
+    try:
+        logger.info("initialize_retriever: start embeddings & Chroma")
+        embeddings = OpenAIEmbeddings()
+        text_splitter = CharacterTextSplitter(
+            chunk_size=ct.CHUNK_SIZE,
+            chunk_overlap=ct.CHUNK_OVERLAP
+        )
+        splitted_docs = text_splitter.split_documents(docs_all)
+        db = Chroma.from_documents(splitted_docs, embedding=embeddings)
+        st.session_state.retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K_RETRIEVED_DOCS})
+        logger.info("initialize_retriever: completed")
+    except Exception as e:
+        logger.error(f"initialize_retriever: embeddings/Chroma error: {e}")
+        raise
 
 def initialize_session_state():
     """
