@@ -99,10 +99,18 @@ def initialize_session_id():
 
 
 def initialize_retriever():
-    logger = logging.getLogger(ct.LOGGER_NAME)
+    try:
+        logger = logging.getLogger(ct.LOGGER_NAME)
+    except Exception as e:
+        logger.error(f"initialize_retriever: load_data_sources error: {e}")
+        raise
 
-    if "retriever" in st.session_state:
-        return
+    try:
+        if "retriever" in st.session_state:
+            return
+    except Exception as e:
+        logger.error(f"initialize_retriever: load_data_sources error: {e}")
+        raise    
 
     try:
         logger.info("initialize_retriever: start load_data_sources")
