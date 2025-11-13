@@ -98,9 +98,11 @@ def display_conversation_log():
                         # 参照元のありかに応じて、適したアイコンを取得
                         icon = utils.get_source_icon(message['content']['main_file_path'])
                         # 参照元ドキュメントのページ番号が取得できた場合にのみ、ページ番号を表示
-                        # st.success(f"{message['content']['main_file_path']}（ページNo.{page_no}）",icon=icon)
-                        # ↓ページ番号出力を一時停止（ファイルパスのみ表示）
-                        st.success(f"{message['content']['main_file_path']}", icon=icon)
+                        page_no = message["content"].get("main_page_number")
+                        if page_no is not None or page_no > 0:
+                            st.success(f"{message['content']['main_file_path']}（ページNo.{page_no}）", icon=icon)
+                        else:
+                            st.success(f"{message['content']['main_file_path']}", icon=icon)
                         
                         # ==========================================
                         # ユーザー入力値と関連性が高いサブドキュメントのありかを表示
@@ -113,9 +115,11 @@ def display_conversation_log():
                             for sub_choice in message["content"]["sub_choices"]:
                                 # 参照元のありかに応じて、適したアイコンを取得
                                 icon = utils.get_source_icon(sub_choice['source'])
-                                # st.info(f"{sub_choice['source']}（ページNo.{page_no}）",icon=icon)
-                                # ↓ページ番号出力を一時停止
-                                st.info(f"{sub_choice['source']}", icon=icon)
+                                page_no = sub_choice.get("page_number")
+                                if page_no is not None or page_no > 0:
+                                    st.info(f"{sub_choice['source']}（ページNo.{page_no}）", icon=icon)
+                                else:
+                                    st.info(f"{sub_choice['source']}", icon=icon)
                     # ファイルのありかの情報が取得できなかった場合、LLMからの回答のみ表示
                     else:
                         st.markdown(message["content"]["answer"])
@@ -163,8 +167,10 @@ def display_search_llm_response(llm_response):
         # 参照元のありかに応じて、適したアイコンを取得
         icon = utils.get_source_icon(main_file_path)
         # ページ番号出力
+        main_page_number = None
         if "page" in llm_response["context"][0].metadata:
-            main_page_number = llm_response["context"][0].metadata["page"]
+            main_page_number = to_page1(llm_response["context"][0].metadata["page"])
+        if main_page_number is not None or main_page_number > 0:
             st.success(f"{main_file_path}（ページNo.{main_page_number}）", icon=icon)
         else:
             st.success(f"{main_file_path}", icon=icon)
@@ -214,7 +220,7 @@ def display_search_llm_response(llm_response):
         content["main_message"] = main_message
         content["main_file_path"] = main_file_path
         # ページ番号格納を停止
-        if "page" in llm_response["context"][0].metadata:
+        if main_page_number is not None or main_page_number > 0:
             content["main_page_number"] = main_page_number
         if sub_choices:
             content["sub_message"] = sub_message
