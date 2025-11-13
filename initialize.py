@@ -43,7 +43,7 @@ def initialize():
     # ログ出力の設定
     initialize_logger()
     # RAGのRetrieverを作成
-    initialize_retriever()
+    #initialize_retriever()
 
 
 def initialize_logger():
