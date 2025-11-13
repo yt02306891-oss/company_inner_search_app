@@ -161,42 +161,56 @@ def load_data_sources():
     recursive_file_check(ct.RAG_TOP_FOLDER_PATH, docs_all)
 
     # -----------------------------
-    # 社員名簿.csv の行ドキュメントを 1 つに統合（課題６）
+    # 社員名簿.csv のドキュメントを 1 つに統合
     # -----------------------------
-    # source に「社員名簿.csv」を含むドキュメントを抽出
     employee_docs = [
         doc for doc in docs_all
-        if "社員名簿.csv" in str(doc.metadata.get("source", ""))
+        if os.path.basename(str(doc.metadata.get("source", ""))) == "社員名簿.csv"
     ]
 
     if employee_docs:
-        # 行ごとの情報をまとめて 1 本のテキストにする
-        merged_lines = []
+        hr_lines = []       # 人事部
+        other_lines = []    # その他の部署
 
-        for idx, doc in enumerate(employee_docs, start=1):
+        for doc in employee_docs:
             row_text = (doc.page_content or "").strip()
             if not row_text:
                 continue
 
-            # 例）「1人目: 氏名=山田太郎, 部署=人事部, 役職=主任」
-            merged_lines.append(f"{idx}人目: {row_text}")
+            # 行テキスト内に「人事部」を含むかどうかで分類
+            if "人事部" in row_text:
+                hr_lines.append(row_text)
+            else:
+                other_lines.append(row_text)
 
-        if merged_lines:
-            # まとめたテキストを 1 つのドキュメントに集約
-            merged_content = "社員名簿（全従業員の一覧）\n" + "\n".join(merged_lines)
+        merged_sections = []
 
-            # 先頭のドキュメントをベースにして中身だけ差し替える
+        # まず人事部の情報を、わかりやすいタイトル付きでまとめる
+        if hr_lines:
+            merged_sections.append("【人事部の社員一覧】")
+            for idx, row in enumerate(hr_lines, start=1):
+                # 例）「1人目: 氏名=山田太郎, 部署=人事部, 役職=主任」
+                merged_sections.append(f"{idx}人目: {row}")
+
+        # その他の部署も、必要であればまとめる
+        if other_lines:
+            merged_sections.append("【その他の部署の社員一覧】")
+            for idx, row in enumerate(other_lines, start=1):
+                merged_sections.append(f"{idx}人目: {row}")
+
+        if merged_sections:
+            # 全体の先頭にタイトルを付ける
+            merged_content = "社員名簿（全従業員の一覧）\n" + "\n".join(merged_sections)
+
+            # 先頭のドキュメントをベースにし、中身だけ差し替える
             main_doc = employee_docs[0]
             main_doc.page_content = merged_content
-            # メタデータにフラグを付けておく（任意）
             main_doc.metadata["merged_from"] = "社員名簿.csv"
-
-            # docs_all から元の社員名簿ドキュメントをすべて除外し、
-            # 代わりに統合済みドキュメント（main_doc）のみを残す
             docs_all = [
                 doc for doc in docs_all
-                if doc not in employee_docs[1:]
+                if doc not in employee_docs
             ]
+            docs_all.append(main_doc)
 
     web_docs_all = []
     # ファイルとは別に、指定のWebページ内のデータも読み込み
@@ -209,7 +223,6 @@ def load_data_sources():
     docs_all.extend(web_docs_all)
 
     return docs_all
-
 
 def recursive_file_check(path, docs_all):
     """
