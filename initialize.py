@@ -160,16 +160,52 @@ def load_data_sources():
     # ファイル読み込みの実行（渡した各リストにデータが格納される）
     recursive_file_check(ct.RAG_TOP_FOLDER_PATH, docs_all)
 
+    # -----------------------------
+    # 社員名簿.csv の行ドキュメントを 1 つに統合（課題６）
+    # -----------------------------
+    # source に「社員名簿.csv」を含むドキュメントを抽出
+    employee_docs = [
+        doc for doc in docs_all
+        if "社員名簿.csv" in str(doc.metadata.get("source", ""))
+    ]
+
+    if employee_docs:
+        # 行ごとの情報をまとめて 1 本のテキストにする
+        merged_lines = []
+
+        for idx, doc in enumerate(employee_docs, start=1):
+            row_text = (doc.page_content or "").strip()
+            if not row_text:
+                continue
+
+            # 例）「1人目: 氏名=山田太郎, 部署=人事部, 役職=主任」
+            merged_lines.append(f"{idx}人目: {row_text}")
+
+        if merged_lines:
+            # まとめたテキストを 1 つのドキュメントに集約
+            merged_content = "社員名簿（全従業員の一覧）\n" + "\n".join(merged_lines)
+
+            # 先頭のドキュメントをベースにして中身だけ差し替える
+            main_doc = employee_docs[0]
+            main_doc.page_content = merged_content
+            # メタデータにフラグを付けておく（任意）
+            main_doc.metadata["merged_from"] = "社員名簿.csv"
+
+            # docs_all から元の社員名簿ドキュメントをすべて除外し、
+            # 代わりに統合済みドキュメント（main_doc）のみを残す
+            docs_all = [
+                doc for doc in docs_all
+                if doc not in employee_docs[1:]
+            ]
+
     web_docs_all = []
     # ファイルとは別に、指定のWebページ内のデータも読み込み
     # 読み込み対象のWebページ一覧に対して処理
     for web_url in ct.WEB_URL_LOAD_TARGETS:
-        # 指定のWebページを読み込み
         loader = WebBaseLoader(web_url)
         web_docs = loader.load()
-        # for文の外のリストに読み込んだデータソースを追加
         web_docs_all.extend(web_docs)
-    # 通常読み込みのデータソースにWebページのデータを追加
+
     docs_all.extend(web_docs_all)
 
     return docs_all
