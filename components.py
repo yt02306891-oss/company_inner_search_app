@@ -275,7 +275,7 @@ def display_contact_llm_response(llm_response):
                 file_info = f"{file_path}（ページNo.{page_no}）"
             else:
                 file_info = f"{file_path}"
-
+            icon = utils.get_source_icon(file_path)
             st.info(file_info, icon=icon)
 
             file_path_list.append(file_path)
