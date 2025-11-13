@@ -99,7 +99,7 @@ def display_conversation_log():
                         icon = utils.get_source_icon(message['content']['main_file_path'])
                         # 参照元ドキュメントのページ番号が取得できた場合にのみ、ページ番号を表示
                         page_no = message["content"].get("main_page_number")
-                        if page_no is not None or page_no > 0:
+                        if page_no:
                             st.success(f"{message['content']['main_file_path']}（ページNo.{page_no}）", icon=icon)
                         else:
                             st.success(f"{message['content']['main_file_path']}", icon=icon)
@@ -116,7 +116,7 @@ def display_conversation_log():
                                 # 参照元のありかに応じて、適したアイコンを取得
                                 icon = utils.get_source_icon(sub_choice['source'])
                                 page_no = sub_choice.get("page_number")
-                                if page_no is not None or page_no > 0:
+                                if page_no:
                                     st.info(f"{sub_choice['source']}（ページNo.{page_no}）", icon=icon)
                                 else:
                                     st.info(f"{sub_choice['source']}", icon=icon)
@@ -170,7 +170,7 @@ def display_search_llm_response(llm_response):
         main_page_number = None
         if "page" in llm_response["context"][0].metadata:
             main_page_number = to_page1(llm_response["context"][0].metadata["page"])
-        if main_page_number is not None or main_page_number > 0:
+        if main_page_number:
             st.success(f"{main_file_path}（ページNo.{main_page_number}）", icon=icon)
         else:
             st.success(f"{main_file_path}", icon=icon)
@@ -220,7 +220,7 @@ def display_search_llm_response(llm_response):
         content["main_message"] = main_message
         content["main_file_path"] = main_file_path
         # ページ番号格納を停止
-        if main_page_number is not None or main_page_number > 0:
+        if main_page_number:
             content["main_page_number"] = main_page_number
         if sub_choices:
             content["sub_message"] = sub_message
