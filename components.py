@@ -194,7 +194,7 @@ def display_search_llm_response(llm_response):
             
             # ページ番号
             if "page" in document.metadata:
-                sub_page_number = document.metadata["page"]
+                sub_page_number = to_page1(document.metadata["page"])
                 sub_choice = {"source": sub_file_path, "page_number": sub_page_number}
             else:
                 sub_choice = {"source": sub_file_path}
@@ -268,14 +268,14 @@ def display_contact_llm_response(llm_response):
                 continue
 
             # ページ番号出力
+            page_no = None
             if "page" in document.metadata:
-                page_no = document.metadata["page"]
-                st.info(f"{file_path}（ページNo.{page_no}）", icon=icon)
+                page_no = to_page1(document.metadata["page"])
+            if page_no:
                 file_info = f"{file_path}（ページNo.{page_no}）"
             else:
                 file_info = f"{file_path}"
 
-            icon = utils.get_source_icon(file_path)
             st.info(file_info, icon=icon)
 
             file_path_list.append(file_path)
